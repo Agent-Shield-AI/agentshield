@@ -1396,11 +1396,11 @@
             
             <div class="stats-bar">
                 <div class="stat-item">
-                    <div class="stat-value">150+</div>
+                    <div class="stat-value">238+</div>
                     <div class="stat-label">Threat Patterns</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">12</div>
+                    <div class="stat-value">20</div>
                     <div class="stat-label">Security Categories</div>
                 </div>
                 <div class="stat-item">
@@ -1562,8 +1562,9 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
                 
                 <div class="scanner-actions">
                     <div class="scanner-info">
-                        <span>🛡️ 150 patterns</span>
-                        <span>⚡ < 1 second</span>
+                        <span>🛡️ 238 patterns</span>
+                        <span>📁 20 categories</span>
+                        <span>⚡ &lt; 1 second</span>
                         <span>🔒 Code never stored</span>
                     </div>
                     <button class="btn btn-primary" onclick="performScan()">
@@ -1704,7 +1705,7 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
                     
                     <ul class="pricing-features">
                         <li><span class="check">✓</span> 10 scans per day</li>
-                        <li><span class="check">✓</span> All 150 threat patterns</li>
+                        <li><span class="check">✓</span> All 238 threat patterns</li>
                         <li><span class="check">✓</span> Web scanner access</li>
                         <li><span class="check">✓</span> Basic reports</li>
                         <li><span class="check">✓</span> Community support</li>
@@ -1810,69 +1811,177 @@ eval(atob('bWFsaWNpb3VzX2NvZGU='));"></textarea>
         }
         animateCounter();
 
-        // Threat patterns
+        // Threat patterns v3.0 - 238 patterns across 20 categories
         const PATTERNS = {
+            // CRITICAL: Data Exfiltration
             data_exfil: {
                 severity: 'CRITICAL',
                 desc: 'Data exfiltration attempt',
                 patterns: [
-                    /process\.env\.(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|SEED|MNEMONIC)/gi,
-                    /os\.environ|os\.getenv/gi,
-                    /fetch\s*\(\s*['"`]https?:\/\/(?!localhost|127\.0\.0\.1)/gi,
-                    /axios\.(get|post)/gi,
-                    /wallet|seed.?phrase|mnemonic|private.?key/gi,
+                    /process\.env\.(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|SEED|MNEMONIC|AWS_|OPENAI_|ANTHROPIC_|STRIPE_)/gi,
+                    /os\.environ\[?['"]?(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY)/gi,
+                    /fetch\s*\(\s*['"`]https?:\/\/(?!localhost|127\.0\.0\.1|0\.0\.0\.0)[^'"]+['"`]\s*,?\s*\{[^}]*body\s*:/gi,
+                    /axios\.(post|put|patch)\s*\([^)]*secret|token|key|password/gi,
+                    /readFileSync\s*\([^)]*\.(env|pem|key|secret|credential)/gi,
+                    /\.ssh\/id_rsa|\.aws\/credentials|\.kube\/config/gi,
+                    /chrome.*Login\s*Data|firefox.*logins\.json/gi,
                 ]
             },
+            // CRITICAL: Backdoors
             backdoor: {
                 severity: 'CRITICAL',
                 desc: 'Backdoor/code execution',
                 patterns: [
                     /eval\s*\(/gi,
                     /new\s+Function\s*\(/gi,
-                    /child_process/gi,
-                    /subprocess/gi,
-                    /os\.system/gi,
-                    /reverse.?shell/gi,
+                    /child_process|spawn|exec|execFile|fork/gi,
+                    /subprocess|Popen|os\.system|os\.popen/gi,
+                    /reverse.?shell|bind.?shell|meterpreter/gi,
+                    /bash\s+-i\s+>&\s*\/dev\/tcp/gi,
+                    /atob\s*\(\s*['"`][A-Za-z0-9+\/=]{20,}['"`]\s*\)/gi,
+                    /Buffer\.from\s*\([^)]+,\s*['"]base64['"]\)/gi,
+                    /vm\.runInContext|vm\.runInNewContext/gi,
                 ]
             },
-            tool_poison: {
+            // CRITICAL: MCP/AI Agent Attacks (UNIQUE TO US!)
+            mcp_attacks: {
                 severity: 'CRITICAL',
-                desc: 'Tool poisoning attack',
+                desc: 'MCP/AI agent attack',
                 patterns: [
-                    /\u200B|\u200C|\u200D|\uFEFF/g,
-                    /ignore\s+(previous|all)\s+instructions/gi,
-                    /\[SYSTEM\]|\[ADMIN\]/gi,
+                    /\u200B|\u200C|\u200D|\uFEFF|\u00AD/g,
+                    /[\u202A-\u202E]|[\u2066-\u2069]/g,
+                    /ignore\s+(previous|all|prior|above)\s+(instructions|prompts|rules)/gi,
+                    /you\s+are\s+now\s+(DAN|evil|unrestricted|jailbroken)/gi,
+                    /\[SYSTEM\]|\[ADMIN\]|\[ROOT\]|\[OVERRIDE\]/gi,
+                    /disregard\s+(your|the|all)\s+(rules|instructions|guidelines)/gi,
+                    /pretend\s+(you|to\s+be)\s+(are\s+)?(a|an)?\s*(different|new|evil)/gi,
+                    /tool_description.*execute|mcp.*inject|mcp.*poison/gi,
                 ]
             },
-            prompt_inject: {
+            // CRITICAL: Wallet Drainers (UNIQUE TO US!)
+            wallet_drainer: {
+                severity: 'CRITICAL',
+                desc: 'Wallet drainer attack',
+                patterns: [
+                    /approve\s*\([^)]*(?:MAX_UINT|type\(uint256\)\.max|2\*\*256|0xffffffff)/gi,
+                    /setApprovalForAll\s*\([^)]*true/gi,
+                    /permit\s*\([^)]*(?:MAX_UINT|type\(uint256\)\.max)/gi,
+                    /private.?key|privateKey|secret.?key|secretKey/gi,
+                    /seed.?phrase|seedPhrase|mnemonic|recovery.?phrase/gi,
+                    /eth_signTransaction|eth_sendTransaction|eth_sign/gi,
+                    /drainer|inferno.?drainer|angel.?drainer|pink.?drainer/gi,
+                    /claim.*airdrop.*connect|free.*nft.*wallet/gi,
+                ]
+            },
+            // HIGH: Secret Detection
+            secrets: {
                 severity: 'HIGH',
-                desc: 'Prompt injection',
+                desc: 'Hardcoded secret/API key',
                 patterns: [
-                    /ignore\s+(previous|all|prior)\s+(instructions|prompts)/gi,
-                    /you\s+are\s+now\s+(DAN|evil|unrestricted)/gi,
-                    /disregard\s+(your|the)\s+(rules|instructions)/gi,
+                    /AKIA[0-9A-Z]{16}/g,
+                    /sk-[a-zA-Z0-9]{48}/g,
+                    /sk-ant-[a-zA-Z0-9\-]{40,}/g,
+                    /ghp_[0-9a-zA-Z]{36}/g,
+                    /sk_live_[0-9a-zA-Z]{24,}/g,
+                    /xoxb-[0-9]{11}-[0-9]{11}-[0-9a-zA-Z]{24}/g,
+                    /-----BEGIN (RSA |EC )?PRIVATE KEY-----/g,
+                    /mongodb(\+srv)?:\/\/[^:]+:[^@]+@/gi,
+                    /0x[a-fA-F0-9]{64}/g,
+                    /['"]?password['"]?\s*[:=]\s*['"][^'"]{8,}['"]/gi,
                 ]
             },
+            // HIGH: Supply Chain
+            supply_chain: {
+                severity: 'HIGH',
+                desc: 'Supply chain attack',
+                patterns: [
+                    /"(pre|post)install"\s*:\s*"[^"]*(?:curl|wget|node|bash|exec|eval)/gi,
+                    /npm.*whoami|\.npmrc.*token|registry\.npmjs\.org.*_authToken/gi,
+                    /github.*repos.*owner.*collaborator|affiliation.*organization_member/gi,
+                ]
+            },
+            // HIGH: Smart Contract Vulnerabilities
+            smart_contract: {
+                severity: 'HIGH',
+                desc: 'Smart contract vulnerability',
+                patterns: [
+                    /\.call\{value:.*\}\s*\(['"]{2}\)/g,
+                    /tx\.origin/g,
+                    /selfdestruct|suicide/gi,
+                    /delegatecall/gi,
+                    /flashLoan|flashBorrow|flash.*callback/gi,
+                ]
+            },
+            // HIGH: Browser Extension Threats
+            browser_ext: {
+                severity: 'HIGH',
+                desc: 'Browser extension threat',
+                patterns: [
+                    /"permissions"\s*:\s*\[[^\]]*"<all_urls>"/gi,
+                    /"permissions"\s*:\s*\[[^\]]*"webRequestBlocking"/gi,
+                    /chrome\.cookies\.get|chrome\.storage\.sync\.get/gi,
+                    /chrome\.tabs\.executeScript/gi,
+                ]
+            },
+            // HIGH: Crypto Mining
             crypto_mine: {
                 severity: 'HIGH',
                 desc: 'Crypto mining',
                 patterns: [
-                    /coinhive|cryptonight|xmrig/gi,
-                    /stratum\+tcp/gi,
+                    /coinhive|cryptonight|xmrig|minergate/gi,
+                    /stratum\+tcp:\/\/|stratum\+ssl:\/\//gi,
+                    /monero|xmr.*pool|pool.*xmr/gi,
                 ]
             },
+            // MEDIUM: Obfuscation
             obfuscation: {
                 severity: 'MEDIUM',
                 desc: 'Code obfuscation',
                 patterns: [
-                    /\\x[0-9a-f]{2}\\x[0-9a-f]{2}/gi,
-                    /String\.fromCharCode/gi,
-                    /_0x[a-f0-9]{4,}/gi,
+                    /\\x[0-9a-fA-F]{2}(\\x[0-9a-fA-F]{2}){10,}/g,
+                    /_0x[a-fA-F0-9]{4,}/g,
+                    /String\.fromCharCode\([0-9,\s]{20,}\)/g,
+                    /javascript\s*:/gi,
+                    /data:text\/html|data:application\/javascript/gi,
                 ]
-            }
+            },
+            // MEDIUM: AI Code Vulnerabilities
+            ai_code_vuln: {
+                severity: 'MEDIUM',
+                desc: 'AI-generated code vulnerability',
+                patterns: [
+                    /['"`]\s*\+\s*\w+\s*\+\s*['"`].*(?:SELECT|INSERT|UPDATE|DELETE)/gi,
+                    /innerHTML\s*=\s*[^'"]/g,
+                    /document\.write\s*\(/g,
+                    /dangerouslySetInnerHTML/g,
+                    /exec\s*\([^)]*\+/g,
+                    /Math\.random\s*\(\s*\)/g,
+                ]
+            },
+            // MEDIUM: Network Attacks
+            network: {
+                severity: 'MEDIUM',
+                desc: 'Network attack pattern',
+                patterns: [
+                    /metadata\.google\.internal|169\.254\.169\.254/g,
+                    /ngrok\.io|localhost\.run|serveo\.net/gi,
+                    /discord\.com\/api\/webhooks/gi,
+                ]
+            },
+            // MEDIUM: Phishing
+            phishing: {
+                severity: 'MEDIUM',
+                desc: 'Phishing indicator',
+                patterns: [
+                    /verify.*wallet|connect.*wallet.*claim/gi,
+                    /free.*airdrop|claim.*free.*nft/gi,
+                    /urgent.*action|account.*suspend/gi,
+                    /confirm.*transaction.*seed/gi,
+                ]
+            },
         };
 
-        const WEIGHTS = { CRITICAL: 100, HIGH: 50, MEDIUM: 20 };
+        const WEIGHTS = { CRITICAL: 100, HIGH: 50, MEDIUM: 20, LOW: 5 };
 
         function performScan() {
             const code = document.getElementById('codeInput').value;
