@@ -1,0 +1,50 @@
+{
+  "name": "agentshield",
+  "version": "1.0.0",
+  "description": "The Immune System for AI Agents - Security scanner for AI skills, MCP servers, and autonomous agents",
+  "main": "cli/agentshield.js",
+  "bin": {
+    "agentshield": "./cli/agentshield.js"
+  },
+  "scripts": {
+    "scan": "node cli/agentshield.js scan",
+    "monitor": "node cli/agentshield.js monitor",
+    "wallet": "node cli/agentshield.js wallet",
+    "serve": "npx serve web",
+    "test": "node cli/agentshield.js scan ./test-skills"
+  },
+  "keywords": [
+    "ai",
+    "security",
+    "scanner",
+    "mcp",
+    "agent",
+    "llm",
+    "malware",
+    "vulnerability",
+    "claude",
+    "openai",
+    "anthropic",
+    "skill",
+    "plugin"
+  ],
+  "author": "AgentShield Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agentshield/agentshield"
+  },
+  "homepage": "https://agentshield.dev",
+  "bugs": {
+    "url": "https://github.com/agentshield/agentshield/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "cli/",
+    "core/",
+    "web/",
+    "README.md"
+  ]
+}

